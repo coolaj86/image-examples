@@ -16,12 +16,14 @@ int main(int argc, char* argv[]) {
   unsigned short pixel; // 16-bits per pixel
   unsigned int maxval; // max color val
   unsigned short width, height;
-  int depth;
+  //int depth; // TODO use depth rather than maxval?
   size_t i;
 
   // Parse Args
   if (argc < 6) {
-    printf("Usage: %s infile width height depth outfile.\n", argv[0]);
+    printf("Usage: %s infile width height max-val-per-pixel outfile.\n", argv[0]);
+    printf("EX: %s fb.rgb565.bin 720 480 255 fb.ppm.\n", argv[0]);
+    //printf("Usage: %s infile width height depth outfile.\n", argv[0]);
     exit(EXIT_FAILURE);
   }
 
@@ -30,11 +32,12 @@ int main(int argc, char* argv[]) {
 
   width = atoi(argv[2]);
   height = atoi(argv[3]);
-  depth = atoi(argv[4]);
-  maxval = pow(2, depth) - 1;
+  maxval = atoi(argv[4]);
+  //depth = atoi(argv[4]);
+  //maxval = pow(2, ceil(depth/3.0)) - 1;
 
   if (maxval <= 0 || maxval >= 65536) {
-    printf("Err: depth must be between 1 and 65535");
+    printf("Err: depth must be between 1 and 65536");
     exit(EXIT_FAILURE);
   }
 
@@ -53,6 +56,7 @@ int main(int argc, char* argv[]) {
       blue = (unsigned short)(pixel & 0x001F);         // 5
 
       // Increase intensity and make rgb888
+      // TODO don't shift if maxval is set by depth
       red = red << 3;
       green = green << 2;
       blue = blue << 3;
