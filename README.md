@@ -32,8 +32,12 @@ Dependecies
 Bugs
 ====
 
-`bmptorgb565` does not work at all
+bmptorgb565
 ----
+`bmptorgb565` only supports bitmaps with headers that meet the formal spec... so basically it doesn't work
+
+Image size is (720*480*3) or 1036800 bytes
+Header is 54 bytes
 
 Header of reference.24.bmp:
 
@@ -41,6 +45,10 @@ Header of reference.24.bmp:
     0000010 00 00 d0 02 00 00 20 fe ff ff 01 00 18 00 00 00
     0000020 00 00 00 00 00 00 13 0b 00 00 13 0b 00 00 00 00
     0000030 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+Note that the width is not written correctly by either of OSX Preview or OSX Paintbrush
+
+`fe ff ff ff` is completely wrong for the height. `00 00 00 00` is obviously not the correct size.
 
 Header read:
 

@@ -16,11 +16,11 @@ typedef unsigned short uint16_t;
 typedef unsigned int uint32_t;
 #endif
 
-//#pragma pack(2) /*2 byte packing */
+#pragma pack(2) /*2 byte packing */
 
 typedef struct
 {
-  uint16_t type; // uint8_t magic[2]
+  uint8_t type[2];
   uint32_t size;
   uint16_t reserved1;
   uint16_t reserved2;
@@ -29,7 +29,7 @@ typedef struct
 
 //#pragma pop()
 
-//#pragma pack() /* Default packing */
+#pragma pack() /* Default packing */
 
 typedef struct
 {
@@ -94,13 +94,13 @@ void BMP24ToRGB565 (char *bmp_24)
 
 
 
-int main()
+int main(int argc, char* argv[])
 {
     Header headfirst;
     Infoheader headsecond;
     Single_pixel single_pixel;
-    char* bmp = "test/reference.24.bmp";
-    char* rgb = "test/output.rgb565.bin";
+    char* bmp = argv[1]; //"/test/reference.24.bmp";
+    char* rgb = "../test/output.rgb565.bin";
     
     int byte_border;
     
@@ -109,9 +109,8 @@ int main()
     infile = fopen(bmp,"rb+");
     if(infile==NULL) //file doesnt exist
     {
-      printf("Error opening first file");
-      exit(0);
-      return 0;
+      perror("Opening infile");
+      exit(EXIT_FAILURE);
     }
     
     /* binary opening of the output image file (rgb565) */
@@ -120,7 +119,8 @@ int main()
     //from first header
     fread(&headfirst,sizeof(headfirst),1,infile);
 
-    printf("type: %x\n",headfirst.type);
+    printf("type: %x",headfirst.type[0]);
+    printf(" %x\n",headfirst.type[1]);
     printf("total size: %u\n",headfirst.size);
     printf("offset: %u\n",headfirst.offset);
 
@@ -128,7 +128,7 @@ int main()
     fread(&headsecond,sizeof(headsecond),1,infile);
 
     printf("width: %lu\n",headsecond.width);
-    printf("width: %lu\n",headsecond.height);
+    printf("height: %lu\n",headsecond.height);
     printf("bitcount(color depth): %u\n",headsecond.bitcount);
     printf("size image (image size): %lu\n",headsecond.sizeimage);
 
@@ -163,7 +163,7 @@ int main()
     fp_test = fopen(rgb,"rb+");
     if(fp_test==NULL) //file doesnt exist
     {
-      printf("Error opening first file");
+      perror("Opening outfile");
       exit(EXIT_FAILURE);
     }
     
@@ -185,8 +185,8 @@ int main()
     fread(&low,sizeof(low),1,fp_test);
     fread(&high,sizeof(high),1,fp_test);
 
-    printf("\nRGB TEST - low: %x\n", low);
-    printf("RGB TEST - high: %x\n", high);
+    //printf("\nRGB TEST - low: %x\n", low);
+    //printf("RGB TEST - high: %x\n", high);
     
     
     }
