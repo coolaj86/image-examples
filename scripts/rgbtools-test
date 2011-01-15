@@ -1,0 +1,9 @@
+#!/bin/bash
+
+PATH="./:${PATH}"
+
+pngtorgb16 ../test/reference.png ./test.rgb16 720 480
+pngtorgb24 ../test/reference.png ./test.rgb24 720 480
+
+rgb16topng ./test.rgb16 ./test.png 720 480
+rgb24tojpeg ./test.rgb24 ./test.jpeg 720 480
