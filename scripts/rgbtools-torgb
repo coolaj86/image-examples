@@ -1,10 +1,17 @@
 #!/bin/bash
 
-if [ ! -n "${RT_SOURCE}" ] || [ ! -n "${RT_DESTINATION}" ] || [ ! -n "${RT_WIDTH}" ] || [ ! -n "${RT_HEIGHT}" ]
+if [ ! -n "${RT_SOURCE}" ] || [ ! -n "${RT_DESTINATION}" ]
 then
   echo "Usage: ${0} /path/to/source.${RT_IN_FORMAT} /path/to/dest.${RT_OUT_FORMAT} width height"
   echo "Example: rgb ~/camera_images/img021.${RT_IN_FORMAT} ~/Photos/Me-and-Jeff.${RT_OUT_FORMAT} 720 480"
   exit 1
+fi
+
+RT_SIZE_ARG=""
+if [ -n "${RT_WIDTH}" ] && [ -n "${RT_HEIGHT}" ]
+then
+  RT_SIZE_ARG="-s ${RT_SIZE}"
+  #-s ${RT_SIZE} \
 fi
 
 ffmpeg \
@@ -15,8 +22,7 @@ ffmpeg \
   -vcodec rawvideo \
   -f rawvideo \
   -pix_fmt ${RT_OUT_FORMAT} \
-  -s ${RT_SIZE} \
-  ${RT_DESTINATION}
+  ${RT_SIZE_ARG} ${RT_DESTINATION}
 
 unset RT_DESTINATION
 unset RT_SOURCE
