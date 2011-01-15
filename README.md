@@ -1,4 +1,4 @@
-Image Tools
+Image Examples
 ====
 
 Simple examples of how to convert images from one format to another -- raw rgb565 (rgb16), rgb24 (rgb888), png, jpeg, bmp, etc.
