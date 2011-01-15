@@ -1,0 +1,20 @@
+#!/bin/bash
+
+ffmpeg \
+  -f image2 \
+  -vcodec ${RT_IN_FORMAT} \
+  -i ${RT_SOURCE} \
+  \
+  -vcodec rawvideo \
+  -f rawvideo \
+  -pix_fmt ${RT_OUT_FORMAT} \
+  -s ${RT_SIZE} \
+  ${RT_DESTINATION}
+
+unset RT_DESTINATION
+unset RT_SOURCE
+unset RT_WIDTH
+unset RT_HEIGHT
+unset RT_SIZE
+unset RT_IN_FORMAT
+unset RT_OUT_FORMAT
