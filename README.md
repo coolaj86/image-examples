@@ -71,10 +71,10 @@ Header read:
 References
 ====
 
-[RGB565 To PNG/JPEG](http://www.swview.org/node/165):
+  * [RGB565 To PNG/JPEG](http://www.swview.org/node/165)
+  * [TI e2e Forum discussion on rgb](http://e2e.ti.com/support/dsp/davinci_digital_media_processors/f/99/t/7307.aspx)
 
-    # Single RAW Image
-    ffmpeg -vcodec rawvideo -f rawvideo -pix_fmt rgb565 -s 1024x768 -i image.raw -f image2 -vcodec png image.png
+Interesting examples:
 
     # Multiple Images / RAW Video
     ffmpeg -vcodec rawvideo -f rawvideo -pix_fmt rgb565 -s 1024x768 -i movie.raw -f image2 -vcodec png image%d.png
