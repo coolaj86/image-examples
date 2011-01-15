@@ -1,0 +1,12 @@
+#!/bin/bash
+
+source rgbtools.inc
+
+echo DEST ${RT_DESTINATION}
+
+export RT_IN_FORMAT="rgb24"
+export RT_OUT_FORMAT="mjpeg"
+
+PATH="./:${PATH}"
+
+rgbtools-fromrgb ${RT_SOURCE} ${RT_DESTINATION} ${RT_SIZE} ${RT_IN_FORMART} ${RT_OUT_FORMAT}
