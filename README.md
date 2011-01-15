@@ -1,14 +1,14 @@
-RGB565 Tools
+Image Tools
 ====
 
-Simple examples of how to convert raw rgb565 frames into other formats.
+Simple examples of how to convert images from one format to another -- raw rgb565 (rgb16), rgb24 (rgb888), png, jpeg, bmp, etc.
 
-  * RAW (rgb888)
-  * BMP (32-bit)
-  * PPM (P3 Plain)
+Please fork and contribute!
 
 Usage
 ----
+
+See README.md in `scripts` for mayn rgb, png, and jpeg examples
 
 raw rgb565 to ppm:
 
