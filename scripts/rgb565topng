@@ -1,5 +1,8 @@
 #!/bin/bash
 
+set -u
+set -e
+
 source rgbtools.inc
 
 echo DEST ${RT_DESTINATION}
