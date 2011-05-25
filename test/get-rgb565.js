@@ -47,7 +47,7 @@ var binarr;
 
   function short2rgba(rg, gb) {
     var red = (rg & ~0x7) // knock of the last 3 green bits, leave red bits as high values
-      , green = (((((rg & 0x7) << 3) | (gb & 0xE0) >> 5)) << 2) // in short `00000111 11100000` becomes `11111100`
+      , green = ((((rg & 0x7) << 5) | (gb & 0xE0) >> 3)) // in short `00000111 11100000` becomes `11111100`
       , blue = ((gb & ~0xE0) << 3); // knock of the first 3 green bits, push the blue bits higher
 
     return [red, green, blue, 255];
@@ -193,7 +193,7 @@ var binarr;
 
     binarr = convertStringToArray(binstr);
     timestamp = new Date().valueOf();
-    console.log('binstr2binarr', timestamp - oldtime);
+    console.log('convertStringToArray', timestamp - oldtime);
     oldtime = timestamp;
 
 
