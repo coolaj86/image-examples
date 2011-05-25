@@ -2,7 +2,48 @@ var binarr;
 (function () {
   "use strict";
 
-  var binstr;
+  function bitstr2imagedata(bitstr, w, h, imgdata) {
+    var val
+      , row
+      , column
+      , cell;
+
+    for (row = 0; row < h; row += 1) {
+      for (column = 0; column < w; column += 1) {
+        var shortpos = 2 * (w * row + column) // 2 bytes for each pixel
+          , pos = 4 * (w * row + column) // 4 bytes for each pixel
+          , bitone = bitstr[shortpos + 0]
+          , bittwo = bitstr[shortpos + 1]
+          , rgba = short2rgba(bitone, bittwo)
+          ;
+
+        imgdata[pos + 0] = rgba[0];
+        imgdata[pos + 1] = rgba[1];
+        imgdata[pos + 2] = rgba[2];
+        imgdata[pos + 3] = rgba[3];
+      }
+    }
+  }
+
+  function convertStringToArray(str) {
+    // Notes:
+    /*
+      function adds about 15% overhead
+      multiplication takes 12x longer
+      [].toString takes another 10x or so longer
+    */
+    var i, n, one, two, arr = [];
+
+    for (i = 0; i < str.length; i += 2) {
+      // Little / Big Endian byteswap
+      one = str.charCodeAt(i + 1) & 0xFF;
+      two = str.charCodeAt(i + 0) & 0xFF;
+      arr.push(one);
+      arr.push(two);
+    }
+
+    return arr;
+  }
 
   function short2rgba(rg, gb) {
     var red = (rg & ~0x7) // knock of the last 3 green bits, leave red bits as high values
@@ -29,7 +70,6 @@ var binarr;
   }
 
   // https://developer.mozilla.org/en/using_xmlhttprequest
-
   // http://web.archive.org/web/20071103070418/http://mgran.blogspot.com/2006/08/downloading-binary-streams-with.html
   function getBinary(file){
     var xhr = new XMLHttpRequest();  
@@ -65,8 +105,8 @@ var binarr;
     xhr.sendAsBinary(data); 
   }
 
-  function create5x5() {
-    // 5x5
+  // A simple demo image that is easy to console.log and check for correctness
+  function convert5x5() {
     var bitmap = [
           [
             [255,0,0,255], [255,0,0,255], [255,0,0,255], [255,0,0,255], [255,0,0,255]
@@ -135,65 +175,39 @@ var binarr;
       }
       return bitmap;
     }
+
     bitmap = bitstr2bitmap(bitstr, 5, 5);
     console.log('bitmap', bitmap);
 
-    function bitstr2imagedata(bitstr, w, h, imgdata) {
-      var val
-        , row
-        , column
-        , cell;
-
-      for (row = 0; row < h; row += 1) {
-        for (column = 0; column < w; column += 1) {
-          var shortpos = 2 * (w * row + column) // 2 bytes for each pixel
-            , pos = 4 * (w * row + column) // 4 bytes for each pixel
-            , bitone = bitstr[shortpos + 0]
-            , bittwo = bitstr[shortpos + 1]
-            , rgba = short2rgba(bitone, bittwo)
-            ;
-
-          imgdata[pos + 0] = rgba[0];
-          imgdata[pos + 1] = rgba[1];
-          imgdata[pos + 2] = rgba[2];
-          imgdata[pos + 3] = rgba[3];
-        }
-      }
-    }
     bitstr2imagedata(bitstr, 5, 5, imageData.data);
     canvas.putImageData(imageData, 50, 50);
 
-    var binstr = getBinary('/reference.rgb565');
-    var timestamp, oldtime;
-    timestamp = oldtime = new Date().valueOf();
-    console.log(timestamp - oldtime);
-    binarr = [];
-    // Notes:
-    /*
-      function adds about 15% overhead
-      multiplication takes 12x longer
-      [].toString takes another 10x or so longer
-    */
-    var i, n, bitone, bittwo;
-    for (var i = 0; i < binstr.length; i += 2) {
-      bitone = binstr.charCodeAt(i + 1) & 0xFF;
-      bittwo = binstr.charCodeAt(i + 0) & 0xFF;
-      binarr.push(bitone);
-      binarr.push(bittwo);
-    }
+  }
+
+  function rgb565ToCanvas(canvas) {
+    var binstr = getBinary('/reference.rgb565')
+      , timestamp = new Date().valueOf()
+      , oldtime = timestamp
+      , imageData
+      ;
+
+    binarr = convertStringToArray(binstr);
     timestamp = new Date().valueOf();
     console.log('binstr2binarr', timestamp - oldtime);
     oldtime = timestamp;
+
 
     imageData = canvas.createImageData(720, 480)
     timestamp = new Date().valueOf();
     console.log('createImage', timestamp - oldtime);
     oldtime = timestamp;
 
+
     bitstr2imagedata(binarr, 720, 480, imageData.data);
     timestamp = new Date().valueOf();
-    console.log('binstr2imagedata', timestamp - oldtime);
+    console.log('bitstr2imagedata', timestamp - oldtime);
     oldtime = timestamp;
+
 
     canvas.putImageData(imageData, 0, 0);
     timestamp = new Date().valueOf();
@@ -201,7 +215,8 @@ var binarr;
     oldtime = timestamp;
   }
 
-  create5x5();
+  //convert5x5();
+  rgb565ToCanvas(document.getElementById('reference-image').getContext("2d"));
 
   //createImage(binstr, 10, 20);
 }());
