@@ -2,6 +2,32 @@ var binarr;
 (function () {
   "use strict";
 
+  var request = require('ahr2');
+
+  function str2imagedata(bitstr, w, h, imgdata) {
+    var val
+      , row
+      , column
+      , cell;
+
+    for (row = 0; row < h; row += 1) {
+      for (column = 0; column < w; column += 1) {
+        var shortpos = 2 * (w * row + column) // 2 bytes for each pixel
+          , pos = 4 * (w * row + column) // 4 bytes for each pixel
+          // swap endian-ness and convert 'user-defined' character set
+          , bitone = bitstr.charCodeAt(shortpos + 1) & 0xFF
+          , bittwo = bitstr.charCodeAt(shortpos + 0) & 0xFF
+          , rgba = short2rgba(bitone, bittwo)
+          ;
+
+        imgdata[pos + 0] = rgba[0];
+        imgdata[pos + 1] = rgba[1];
+        imgdata[pos + 2] = rgba[2];
+        imgdata[pos + 3] = rgba[3];
+      }
+    }
+  }
+
   function bitstr2imagedata(bitstr, w, h, imgdata) {
     var val
       , row
@@ -71,12 +97,22 @@ var binarr;
 
   // https://developer.mozilla.org/en/using_xmlhttprequest
   // http://web.archive.org/web/20071103070418/http://mgran.blogspot.com/2006/08/downloading-binary-streams-with.html
-  function getBinary(file){
+  function getBinarySync(file, cb) {
     var xhr = new XMLHttpRequest();  
-    xhr.open("GET", file, false);  
+    xhr.open("GET", file, true);  
     xhr.overrideMimeType("text/plain; charset=x-user-defined");  
     xhr.send(null);
-    return xhr.responseText;
+    cb(xhr.responseText);
+  }
+  function getBinary(file, cb){
+    var xhr = new XMLHttpRequest();  
+    xhr.open("GET", file, true);  
+    xhr.overrideMimeType("text/plain; charset=x-user-defined");  
+    xhr.send(null);
+    xhr.addEventListener('load', function (ev) {
+      //cb(ev.target.result);
+      cb(xhr.responseText);
+    });
   }
 
   function sendBinary(data, url){
@@ -184,26 +220,25 @@ var binarr;
 
   }
 
-  function rgb565ToCanvas(canvas) {
-    var binstr = getBinary('/reference.rgb565')
-      , timestamp = new Date().valueOf()
+  function rgb565ToCanvas(binstr, canvas) {
+    var timestamp = new Date().valueOf()
       , oldtime = timestamp
       , imageData
       ;
-
-    binarr = convertStringToArray(binstr);
-    timestamp = new Date().valueOf();
-    console.log('convertStringToArray', timestamp - oldtime);
-    oldtime = timestamp;
-
 
     imageData = canvas.createImageData(720, 480)
     timestamp = new Date().valueOf();
     console.log('createImage', timestamp - oldtime);
     oldtime = timestamp;
 
+    /*
+    binstr = convertStringToArray(binstr);
+    timestamp = new Date().valueOf();
+    console.log('convertStringToArray', timestamp - oldtime);
+    oldtime = timestamp;
+    */
 
-    bitstr2imagedata(binarr, 720, 480, imageData.data);
+    str2imagedata(binstr, 720, 480, imageData.data);
     timestamp = new Date().valueOf();
     console.log('bitstr2imagedata', timestamp - oldtime);
     oldtime = timestamp;
@@ -213,10 +248,32 @@ var binarr;
     timestamp = new Date().valueOf();
     console.log('putImageData', timestamp - oldtime);
     oldtime = timestamp;
+
+    //getBinaryAhr();
   }
 
+  /*
+    AHR handles this
+  */
+                                    // TODO responseDecoder
+  function doItAll(data) {
+    console.log('got image of', data.length, 'bytes');
+    rgb565ToCanvas(data, document.getElementById('reference-image').getContext("2d"));
+  }
+
+  //getBinarySync('/reference.rgb565', doItAll); // 691200
+  //getBinary('/reference.rgb565', doItAll);
+  function getBinaryAhr() {
+    request.get('/reference.rgb565', null, { overrideResponseType: 'binary', responseEncoder: function (d) { return d; } }).when(function (err, response, data) {
+      // 690574
+      doItAll(data);
+    });
+  }
+  getBinaryAhr();
+  /*
+  */
+
   //convert5x5();
-  rgb565ToCanvas(document.getElementById('reference-image').getContext("2d"));
 
   //createImage(binstr, 10, 20);
 }());
